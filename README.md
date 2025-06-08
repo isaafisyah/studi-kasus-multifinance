@@ -14,3 +14,15 @@ API untuk mencatat transaksi, dibuat dengan Golang + Gin.
 
 - docker-compose run migrate
 - docker-compose run migrate-down (untuk rollback)
+
+# file sql backup
+
+- backup_multifinance.sql
+
+# image erd
+
+- erd-multifinance.png
+
+# image flow app
+
+- multi finance.drawio.png
