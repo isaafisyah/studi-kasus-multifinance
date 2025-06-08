@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/isaafisyah/studi-kasus-multifinance/app/log"
 )
 
 func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
@@ -26,6 +27,7 @@ func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
             c.AbortWithStatusJSON(http.StatusGatewayTimeout, gin.H{
                 "error": "request timeout",
             })
+			log.GetLogger("TimeoutMiddleware").Error("request timeout")
         case <-done:
         }
 	}
