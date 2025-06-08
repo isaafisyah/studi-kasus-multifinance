@@ -1,0 +1,13 @@
+CREATE TABLE konsumens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nik VARCHAR(16) NOT NULL UNIQUE,
+    fullname VARCHAR(255) NOT NULL,
+    legal_name VARCHAR(255) NOT NULL,
+    tempat_lahir VARCHAR(255) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    gaji BIGINT NOT NULL,
+    foto_ktp VARCHAR(255),
+    foto_selfie VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
