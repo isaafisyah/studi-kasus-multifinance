@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/isaafisyah/studi-kasus-multifinance/app/log"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/dto"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/models"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/repositories"
@@ -34,6 +35,7 @@ func (rt *RecordTransactionServiceImpl) FindById(idStr string) (models.RecordTra
 }
 
 func (rt *RecordTransactionServiceImpl) Create(req dto.CreateRecordTransactionRequest) (*models.RecordTransaction,error) {
+	log.GetLogger("TransactionService").Info("Service Create Transaction Start")
 	var (
 		mu sync.Mutex
 		wg sync.WaitGroup
@@ -57,6 +59,7 @@ func (rt *RecordTransactionServiceImpl) Create(req dto.CreateRecordTransactionRe
 		limit := uint8(4)
 	
 		transaction, _ := rt.recordTransactionRepository.FindByKonsumenID(req.KonsumenID)
+		log.GetLogger("TransactionService").Debug(transaction)
 		if len(transaction) == 0 {
 			existingCount = 1
 		} else {
@@ -64,23 +67,28 @@ func (rt *RecordTransactionServiceImpl) Create(req dto.CreateRecordTransactionRe
 		}
 	
 		limits, err := rt.limitRepository.FindByKonsumenTenor(req.KonsumenID, existingCount)
+		log.GetLogger("TransactionService").Debug(limits)
 		if err != nil {
 			errResult = fmt.Errorf("cicilan tidak ada")
+			log.GetLogger("TransactionService").Error(errResult)
 			return
 		}
 	
 		if jumlahCicilan > limits.LimitAmount {
 			errResult = fmt.Errorf("jumlah cicilan melebihi batas limit yang ditentukan")
+			log.GetLogger("TransactionService").Error(errResult)
 			return
 		}
 
 		if jumlahCicilan < limits.LimitAmount {
 			errResult = fmt.Errorf("jumlah cicilan kurang dari batas limit yang ditentukan")
+			log.GetLogger("TransactionService").Error(errResult)
 			return
 		}
 	
 		if existingCount >= limit {
 			errResult = fmt.Errorf("jumlah cicilan sudah mencapai batas maksimal (%d)", limit)
+			log.GetLogger("TransactionService").Error(errResult)
 			return
 		}
 	
@@ -100,6 +108,8 @@ func (rt *RecordTransactionServiceImpl) Create(req dto.CreateRecordTransactionRe
 	if errResult != nil {
 		return nil, errResult
 	}
+	log.GetLogger("TransactionService").Debug(recordTransaction)
+	log.GetLogger("TransactionService").Info("Service Create Transaction End")
 	
 	return &recordTransaction, nil
 	
