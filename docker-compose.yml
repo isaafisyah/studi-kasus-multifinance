@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: multifinance
+    image: multifinance-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      APP_NAME: multifinance
+      APP_ENV: Development
+      APP_PORT: 8080
+      APP_SECRET_KEY: zmQF1U9WZWwPoL5XkKJOFzJXQWjImhDG
+      DB_USER: root
+      DB_PASS: secret
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: multifinance
+
+  db:
+    container_name: multifinance-mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: multifinance
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./app/database/migrations:/migrations
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "mysql://root:secret@tcp(db:3306)/multifinance",
+        "up",
+      ]
+    depends_on:
+      - db
+
+  migrate-down:
+    image: migrate/migrate
+    volumes:
+      - ./app/database/migrations:/migrations
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "mysql://root:secret@tcp(db:3306)/multifinance",
+        "down",
+      ]
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
