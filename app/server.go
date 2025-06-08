@@ -1,12 +1,12 @@
 package app
 
 import (
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/config"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/database"
+	"github.com/isaafisyah/studi-kasus-multifinance/app/log"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/middleware"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/routes"
 )
@@ -25,7 +25,7 @@ func (s *Server) Run()  {
 	cnf := config.Get()
 	db, err := database.GetDatabaseConnection(cnf)
 	if err != nil {
-		panic(err)
+		log.GetLogger("Server").Fatal(err.Error())
 	}
 	
 	s.Gin.Use(middleware.TimeoutMiddleware(5 * time.Second))
@@ -39,6 +39,6 @@ func (s *Server) Run()  {
 
 	// Start the server
 	if err := s.Gin.Run(":" + cnf.Server.Port); err != nil {
-		log.Fatalf("Failed to run the server: %v", err)
+		log.GetLogger("Server").Fatal(err.Error())
 	}
 }
