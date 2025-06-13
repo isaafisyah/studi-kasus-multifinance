@@ -6,11 +6,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/controllers"
-	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -19,8 +17,7 @@ func TestCreateKonsumen_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	mockService := new(MockKonsumenService)
-	mockRepo := new(MockKonsumenRepository)
-	controller := controllers.NewKonsumenController(mockService, mockRepo)
+	controller := controllers.NewKonsumenController(mockService)
 
 	// Dummy file
 	body := &bytes.Buffer{}
@@ -41,19 +38,17 @@ func TestCreateKonsumen_Success(t *testing.T) {
 
 	writer.Close()
 
-	dummyRes := &models.Konsumen{
-		ID:           1,
-		NIK:          "1234567890123456",
-		Fullname:     "Budi",
-		LegalName:    "Budi",
-		TempatLahir:  "Jakarta",
-		TanggalLahir: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
-		Gaji:         10000000,
-	}
+	// dummyRes := &models.Konsumen{
+	// 	ID:           1,
+	// 	NIK:          "1234567890123456",
+	// 	Fullname:     "Budi",
+	// 	LegalName:    "Budi",
+	// 	TempatLahir:  "Jakarta",
+	// 	TanggalLahir: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+	// 	Gaji:         10000000,
+	// }
 
-	mockService.On("Create", mock.AnythingOfType("dto.CreateKonsumenRequest"), mock.AnythingOfType("*gin.Context")).Return(dummyRes, nil)
-
-	mockRepo.On("Save", *dummyRes).Return(nil)
+	mockService.On("Create", mock.AnythingOfType("dto.CreateKonsumenRequest"), mock.AnythingOfType("*gin.Context")).Return(nil)
 
 	router := gin.Default()
 	router.POST("/konsumen", controller.Create)
@@ -64,15 +59,13 @@ func TestCreateKonsumen_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rec.Code)
 	mockService.AssertExpectations(t)
-	mockRepo.AssertExpectations(t)
 }
 
 func TestCreateKonsumen_Failed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	mockService := new(MockKonsumenService)
-	mockRepo := new(MockKonsumenRepository)
-	controller := controllers.NewKonsumenController(mockService, mockRepo)
+	controller := controllers.NewKonsumenController(mockService)
 
 	// Dummy file
 	body := &bytes.Buffer{}
@@ -93,19 +86,17 @@ func TestCreateKonsumen_Failed(t *testing.T) {
 
 	writer.Close()
 
-	dummyRes := &models.Konsumen{
-		ID:           1,
-		NIK:          "1234567890123456",
-		Fullname:     "Budi",
-		LegalName:    "Budi",
-		TempatLahir:  "Jakarta",
-		TanggalLahir: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
-		Gaji:         10000000,
-	}
+	// dummyRes := &models.Konsumen{
+	// 	ID:           1,
+	// 	NIK:          "1234567890123456",
+	// 	Fullname:     "Budi",
+	// 	LegalName:    "Budi",
+	// 	TempatLahir:  "Jakarta",
+	// 	TanggalLahir: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+	// 	Gaji:         10000000,
+	// }
 
-	mockService.On("Create", mock.AnythingOfType("dto.CreateKonsumenRequest"), mock.AnythingOfType("*gin.Context")).Return(dummyRes, nil)
-
-	mockRepo.On("Save", *dummyRes).Return(nil)
+	mockService.On("Create", mock.AnythingOfType("dto.CreateKonsumenRequest"), mock.AnythingOfType("*gin.Context")).Return(nil)
 
 	router := gin.Default()
 	router.POST("/konsumen", controller.Create)
