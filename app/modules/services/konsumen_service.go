@@ -7,8 +7,9 @@ import (
 )
 
 type KonsumenService interface {
-	Create(req dto.CreateKonsumenRequest, ctx *gin.Context) (*models.Konsumen, error)
+	Create(req dto.CreateKonsumenRequest, ctx *gin.Context) (error)
 	FindAll(ctx *gin.Context) ([]models.Konsumen, error)
 	FindById(idStr string) (models.Konsumen, error)
 	Update(idStr string, req dto.UpdateKonsumenRequest) (*models.Konsumen, error)
+	Delete(idStr string) (error)
 }

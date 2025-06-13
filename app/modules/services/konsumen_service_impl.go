@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/isaafisyah/studi-kasus-multifinance/app/log"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/dto"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/models"
 	"github.com/isaafisyah/studi-kasus-multifinance/app/modules/repositories"
@@ -32,25 +33,29 @@ func (k *KonsumenServiceImpl) FindById(idStr string) (models.Konsumen, error) {
 	return k.konsumenRepository.FindById(id)
 }
 
-func (k *KonsumenServiceImpl) Create(req dto.CreateKonsumenRequest, ctx *gin.Context) (*models.Konsumen, error) {
+func (k *KonsumenServiceImpl) Create(req dto.CreateKonsumenRequest, ctx *gin.Context) (error) {
 	fileKtp, err := ctx.FormFile("foto_ktp")
 	if err != nil {
-		return nil, fmt.Errorf("validation error: foto_ktp wajib diunggah")
+		log.GetLogger("KonsumenService").Error("validation error: foto_ktp wajib diunggah")
+		return fmt.Errorf("validation error: foto_ktp wajib diunggah")
 	}
 	// Simpan file ke disk
 	filePathKtp := fmt.Sprintf("storage/uploads/ktp_%s.jpg", req.NIK)
 	if err := ctx.SaveUploadedFile(fileKtp, filePathKtp); err != nil {
-		return nil, fmt.Errorf("validation error: gagal menyimpan foto KTP")
+		log.GetLogger("KonsumenService").Error("validation error: gagal menyimpan foto KTP")
+		return fmt.Errorf("validation error: gagal menyimpan foto KTP")
 	}
 
 	fileSelfie, err := ctx.FormFile("foto_selfie")
 	if err != nil {
-		return nil, fmt.Errorf("validation error: foto_ktp wajib diunggah")
+		log.GetLogger("KonsumenService").Error("validation error: foto_ktp wajib diunggah")
+		return fmt.Errorf("validation error: foto_ktp wajib diunggah")
 	}
 	// Simpan file ke disk
 	filePathSelfie := fmt.Sprintf("storage/uploads/selfie_%s.jpg", req.NIK)
 	if err := ctx.SaveUploadedFile(fileSelfie, filePathSelfie); err != nil {
-		return nil, fmt.Errorf("validation error: gagal menyimpan foto KTP")
+		log.GetLogger("KonsumenService").Error("validation error: gagal menyimpan foto KTP")
+		return fmt.Errorf("validation error: gagal menyimpan foto KTP")
 	}
 
 	dir, _ := os.Getwd()
@@ -58,17 +63,20 @@ func (k *KonsumenServiceImpl) Create(req dto.CreateKonsumenRequest, ctx *gin.Con
 
 	tanggalLahir, err := time.Parse("2006-01-02", req.TanggalLahir)
 	if err != nil {
-		return nil, fmt.Errorf("validation error: format tanggal lahir salah")
+		log.GetLogger("KonsumenService").Error("validation error: format tanggal lahir salah")
+		return fmt.Errorf("validation error: format tanggal lahir salah")
 	}
 
 	gaji, err := strconv.ParseInt(req.Gaji, 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("validation error: gaji tidak valid")
+		log.GetLogger("KonsumenService").Error("validation error: gaji tidak valid")
+		return fmt.Errorf("validation error: gaji tidak valid")
 	}
 
 	exist, _ := k.konsumenRepository.FindByNIK(req.NIK)
 	if exist.NIK != "" {
-		return nil, fmt.Errorf("validation error: NIK sudah terdaftar")
+		log.GetLogger("KonsumenService").Error("validation error: NIK sudah terdaftar")
+		return fmt.Errorf("validation error: NIK sudah terdaftar")
 	}
 
 	konsumen := &models.Konsumen{
@@ -82,7 +90,12 @@ func (k *KonsumenServiceImpl) Create(req dto.CreateKonsumenRequest, ctx *gin.Con
 		FotoSelfie:   filePathSelfie,
 	}
 
-	return konsumen, nil
+	if err := k.konsumenRepository.Save(*konsumen); err != nil {
+		log.GetLogger("KonsumenService").Error(err.Error())
+		return fmt.Errorf("validation error: format tanggal lahir salah")
+	}
+
+	return nil
 }
 
 func (k *KonsumenServiceImpl) Update(idStr string, req dto.UpdateKonsumenRequest) (*models.Konsumen, error) {
@@ -120,5 +133,20 @@ func (k *KonsumenServiceImpl) Update(idStr string, req dto.UpdateKonsumenRequest
 		konsumen.Gaji = gaji
 	}
 
-	return &konsumen, nil
+	data, err := k.konsumenRepository.Update(konsumen)
+	if err != nil {
+		log.GetLogger("KonsumenController").Error(err.Error())
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func (k *KonsumenServiceImpl) Delete(idStr string) (error) {
+	konsumen, err := k.FindById(idStr)
+	if err != nil {
+		log.GetLogger("KonsumenController").Error(err.Error())
+		return err
+	}
+	return k.konsumenRepository.Delete(konsumen)
 }

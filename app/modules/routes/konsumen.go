@@ -11,7 +11,7 @@ import (
 func InitializeRoutesKonsumen(db *gorm.DB, r *gin.Engine)  {
 	konsumenRepository := repositories.NewKonsumenRepository(db)
 	konsumenService := services.NewKonsumenService(konsumenRepository)
-	konsumenController := controllers.NewKonsumenController(konsumenService, konsumenRepository)
+	konsumenController := controllers.NewKonsumenController(konsumenService)
 
 	r.GET("/konsumen", konsumenController.FindAll)
 	r.GET("/konsumen/:id", konsumenController.FindById)
