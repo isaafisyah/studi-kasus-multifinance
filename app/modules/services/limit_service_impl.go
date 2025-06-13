@@ -24,7 +24,7 @@ func (l *LimitServiceImpl) FindAll() ([]models.Limit, error) {
 func (l *LimitServiceImpl) FindById(idStr string) (models.Limit, error) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		fmt.Errorf("invalid id")		
+		return models.Limit{}, fmt.Errorf("invalid id")	
 	}
 	return l.limitRepository.FindById(id)
 }
